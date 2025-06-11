@@ -40,7 +40,7 @@ contract Auction {
         owner = msg.sender;
         highestBidder = owner;
         highestBid = 1 gwei;
-        auctionEndTime = block.timestamp + 10 days;
+        auctionEndTime = block.timestamp + 5 days;
         auctionEnded = false;
     }
     
@@ -75,12 +75,12 @@ contract Auction {
     // Refund
     function refund() external hasBids {
         require(auctionEnded || block.timestamp >= auctionEndTime, "The auction is still active.");
-        require(deposits[msg.sender] > 0, "There's no refund for you.");
-        require(msg.sender != highestBidder, "The winner can't refund.");
-        
         uint256 depositAmount = deposits[msg.sender];
-        deposits[msg.sender] = 0;
-        
+        if (msg.sender == highestBidder) {
+            depositAmount -= highestBid;    // The winner cannot refund his last offer
+        }
+        require(depositAmount > 0, "There's no refund for you.");
+        deposits[msg.sender] -= depositAmount;
         uint256 commission = (depositAmount * 2) / 100;
         uint256 refundAmount = depositAmount - commission;        
         payable(owner).transfer(commission);           // Comission for the owner
@@ -97,6 +97,7 @@ contract Auction {
     
     // Withdraw comissions for the owner
     function withdrawCommissions() external onlyOwner hasBids{
+        require(auctionEnded || block.timestamp >= auctionEndTime, "The auction is still active.");
         uint256 balance = address(this).balance;
         require(balance > 0, "There are no funds to withdraw.");        
         payable(owner).transfer(balance);
