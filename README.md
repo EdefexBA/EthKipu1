@@ -74,3 +74,5 @@ getContractInfo: informa quien es el duenño, cuando termina la subasta, si term
 partialRefund: un ofertante puede retirar ofertas anteriores a su última oferta, sin aplicarle comisión.
 
 emergencyStop: solo para el dueño para usarlo en casos de emergencia. Detiene la subasta y retira todo lo acumulado.
+
+[Dirección del contrato en Sepolia](https://sepolia.etherscan.io/address/0x9b0406ec20b5848f63eD0310FfcE2CBe623e920a)
