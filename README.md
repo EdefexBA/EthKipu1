@@ -2,8 +2,16 @@
 
 ## Contrato subasta
 
-Variables:
-Estructura Bid contiene ofertante y monto.
+### Variables del contrato:
+
+Estructura Bid define la *oferta* (ofertante y monto ofertado).
+owner es el dueño del contrato.
+highestBidder es el mayor ofertante.
+highestBid es el máximo monto ofertado.
+auctionEndTime es el momento en que termina la subasta.
+auctionEnded es el flag que indica que terminó la subasta.
+Bid[] es un array de *ofertas*.
+deposits es un mapeo de cuanto ofertó un ofertante.
 
     // Variables and struct for bids
     struct Bid {
@@ -18,25 +26,29 @@ Estructura Bid contiene ofertante y monto.
     Bid[] public bids;
     mapping(address => uint256) public deposits;
 
-Eventos:
+### Eventos:
+
     event NewOffer(address bidder, uint256 amount);
+    Se emite cuando hay una oferta (ofertante y monto).
+    
     event EndAuction(address winner, uint256 winningBid);
+    Se emite cuando el dueño finaliza la subasta mostrando ganador y monto ofertado.
+    
     event PartialWithdraw(address bidder, uint256 amount);
+    Se emite cuando un ofertante retira parcialmente su(s) oferta(s), excepto la última, sin cobrarle comisión.
 
-Modificadores:
+### Modificadores:
 
-    // Modifiers
-    modifier onlyOwner() {
-    }
-    modifier auctionActive() {
-    }
-    modifier hasBids(){
-    }
+    onlyOwner: funciones aplicables solo para el dueño.
+    auctionActive: funciones aplicables solo cuando la subasta está activa.
+    hasBids: funciones aplicables solo cuando hay al menos una oferta en la subasta.
+
+### Contructor:
+
+    Al deployar el contrato se debe inicializar la oferta base en *highestBid* y tiempo de duración de la subasta en *auctionEndTime*.
     
-    // Initialize the auction. PLEASE SET highestBid AND auctionEndTime!!!
-    constructor() {
-    }
-    
+### Funciones:
+
     // Make offer
     function makeOffer() external payable auctionActive {
     }
@@ -65,19 +77,12 @@ Modificadores:
     function getAuctionStatus() external view returns (
         bool isActive, uint256 timeRemaining, uint256 totalBids, uint256 contractBalance
     ) {
-        bool active = (block.timestamp < auctionEndTime) && !auctionEnded;
-        uint256 remaining = 0;        
-        if (block.timestamp < auctionEndTime) {
-            remaining = auctionEndTime - block.timestamp;
-        }
-        return (active, remaining, bids.length, address(this).balance);
     }
     
     // Get contract info
     function getContractInfo() external view returns (
         address contractOwner, uint256 endTime, bool ended, address currentWinner,
         uint256 currentHighestBid) {
-            return (owner, auctionEndTime, auctionEnded, highestBidder, highestBid);
     }
 
     // Partial refund
@@ -88,4 +93,3 @@ Modificadores:
     // Emergency stop
     function emergencyStop() external onlyOwner {
     }
-}
