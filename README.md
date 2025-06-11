@@ -5,12 +5,19 @@
 ### Variables del contrato:
 
 Estructura Bid define la *oferta* (ofertante y monto ofertado).
+
 owner es el dueño del contrato.
+
 highestBidder es el mayor ofertante.
+
 highestBid es el máximo monto ofertado.
+
 auctionEndTime es el momento en que termina la subasta.
+
 auctionEnded es el flag que indica que terminó la subasta.
-Bid[] es un array de *ofertas*.
+
+Bid[] es un array de la estructura de *ofertas*.
+
 deposits es un mapeo de cuanto ofertó un ofertante.
 
     // Variables and struct for bids
@@ -28,68 +35,42 @@ deposits es un mapeo de cuanto ofertó un ofertante.
 
 ### Eventos:
 
-    event NewOffer(address bidder, uint256 amount);
-    Se emite cuando hay una oferta (ofertante y monto).
-    
-    event EndAuction(address winner, uint256 winningBid);
-    Se emite cuando el dueño finaliza la subasta mostrando ganador y monto ofertado.
-    
-    event PartialWithdraw(address bidder, uint256 amount);
-    Se emite cuando un ofertante retira parcialmente su(s) oferta(s), excepto la última, sin cobrarle comisión.
+event NewOffer(address bidder, uint256 amount): se emite cuando hay una oferta (ofertante y monto).
+
+event EndAuction(address winner, uint256 winningBid): se emite cuando el dueño finaliza la subasta mostrando ganador y monto ofertado.
+
+event PartialWithdraw(address bidder, uint256 amount): se emite cuando un ofertante retira parcialmente su(s) oferta(s), excepto la última, sin cobrarle comisión.
 
 ### Modificadores:
 
-    onlyOwner: funciones aplicables solo para el dueño.
-    auctionActive: funciones aplicables solo cuando la subasta está activa.
-    hasBids: funciones aplicables solo cuando hay al menos una oferta en la subasta.
+onlyOwner: funciones aplicables solo para el dueño de la subasta.
+
+auctionActive: funciones aplicables solo cuando la subasta está activa.
+
+hasBids: funciones aplicables solo cuando hay al menos una oferta en la subasta.
 
 ### Contructor:
 
-    Al deployar el contrato se debe inicializar la oferta base en *highestBid* y tiempo de duración de la subasta en *auctionEndTime*.
+Al deployar el contrato se debe inicializar la oferta base en *highestBid* y tiempo de duración de la subasta en *auctionEndTime*.
     
 ### Funciones:
 
-    // Make offer
-    function makeOffer() external payable auctionActive {
-    }
-    
-    // Show winner
-    function showWinner() external hasBids view returns (address winner, uint256 winningBid) {
-    }
-    
-    // Show all bids
-    function showBids() external hasBids view returns (Bid[] memory) {
-    }
-    
-    // Refund
-    function refund() external hasBids {
-    }
-    
-    // End auction only for owner
-    function endAuction() external onlyOwner {
-    }
-    
-    // Withdraw comissions for the owner
-    function withdrawCommissions() external onlyOwner hasBids{
-    }
-    
-    // Get auction status
-    function getAuctionStatus() external view returns (
-        bool isActive, uint256 timeRemaining, uint256 totalBids, uint256 contractBalance
-    ) {
-    }
-    
-    // Get contract info
-    function getContractInfo() external view returns (
-        address contractOwner, uint256 endTime, bool ended, address currentWinner,
-        uint256 currentHighestBid) {
-    }
+makeOffer: ejecuta la oferta si el monto ofertado supera en un 5% al anterior.
 
-    // Partial refund
-    function partialRefund() external auctionActive hasBids {
+showWinner: muestra el ganador y el monto máximo ofertado.
 
-    }
+showBids: muesta lista de ofertantes y montos ofertados.
 
-    // Emergency stop
-    function emergencyStop() external onlyOwner {
-    }
+refund: devuelve a todos, excepto al ganador, de todo el dinero ofertado, menos la comisión que va para el ganador.
+
+endAuction: el dueño finaliza la subasta y emite el ganador y monto máximo ofertado.
+
+withdrawCommissions: el dueño retira la comisión y la oferta ganadora.
+
+getAuctionStatus: informa estado de la subasta (si está activa, tiempo restante, total de ofertas y monto recaudado hasta ese momento).
+
+getContractInfo: informa quien es el duenño, cuando termina la subasta, si terminó la subasta, mayor ofertante hasta ese momento y mayor monto ofertado.
+
+partialRefund: un ofertante puede retirar ofertas anteriores a su última oferta, sin aplicarle comisión.
+
+emergencyStop: solo para el dueño para usarlo en casos de emergencia. Detiene la subasta y retira todo lo acumulado.
