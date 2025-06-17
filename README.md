@@ -49,7 +49,7 @@ auctionActive: funciones aplicables solo cuando la subasta está activa.
 
 hasBids: funciones aplicables solo cuando hay al menos una oferta en la subasta.
 
-### Contructor:
+### Constructor:
 
 Al deployar el contrato se debe inicializar la oferta base en *highestBid* y tiempo de duración de la subasta en *auctionEndTime*.
     
@@ -61,7 +61,7 @@ showWinner: muestra el ganador y el monto máximo ofertado.
 
 showBids: muesta lista de ofertantes y montos ofertados.
 
-refund: devuelve a todos, excepto al ganador, de todo el dinero ofertado, menos la comisión que va para el ganador.
+refund: devuelve a todos el dinero ofertado, menos una comisión del 2%. Al ganador se retiene la oferta ganadora.
 
 endAuction: el dueño finaliza la subasta y emite el ganador y monto máximo ofertado.
 
@@ -75,4 +75,6 @@ partialRefund: un ofertante puede retirar ofertas anteriores a su última oferta
 
 emergencyStop: solo para el dueño para usarlo en casos de emergencia. Detiene la subasta y retira todo lo acumulado.
 
-[Dirección del contrato en Sepolia](https://sepolia.etherscan.io/address/0x9b0406ec20b5848f63eD0310FfcE2CBe623e920a)
+<!---
+[Dirección del contrato en Sepolia](https://sepolia.etherscan.io/address/)
+--->
