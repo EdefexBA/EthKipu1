@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+/// @title Auction: smart contract.
+/// @author Max Seifert
+/// @notice Module 2 of ETH Kipu course.
+
 contract Auction {
 
-    // Variables and struct for bids
+    /// @notice Variables and struct for bids
     struct Bid {
         address bidder;
         uint256 amount;
@@ -16,14 +20,20 @@ contract Auction {
     Bid[] public bids;
     mapping(address => uint256) public deposits;
     
-    // Events
+    /// @dev Events
+
+    /// @notice Emits bidder and amount when an offer is made
     event NewOffer(address bidder, uint256 amount);
+
+    /// @notice Emits winner and winning amount at end of the auction
     event EndAuction(address winner, uint256 winningBid);
+
+    /// @notice Emits bidder and amount from a partial withdraw
     event PartialWithdraw(address bidder, uint256 amount);
 
-    // Modifiers
+    /// @dev Modifiers
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only the owner can execute this function.");
+        require(msg.sender == owner, "Only the owner can do this.");
         _;
     }
     modifier auctionActive() {
@@ -35,7 +45,7 @@ contract Auction {
         _;
     }
     
-    // Initialize the auction. PLEASE SET highestBid AND auctionEndTime!!!
+    /// @notice Initialize the auction. PLEASE SET highestBid AND auctionEndTime!!!
     constructor() {
         owner = msg.sender;
         highestBidder = owner;
@@ -44,10 +54,10 @@ contract Auction {
         auctionEnded = false;
     }
     
-    // Make offer
+    /// @notice Make offer
     function makeOffer() external payable auctionActive {
         require(msg.value >= ((highestBid * 105) / 100),
-            "The offer must be at least 5% higher than the current offer");        
+            "Must be at least 5% higher.");        
         highestBidder = msg.sender;
         highestBid = msg.value;
         bids.push(Bid({
@@ -61,33 +71,33 @@ contract Auction {
         emit NewOffer(msg.sender, msg.value);
     }
     
-    // Show winner
+    /// @notice Show winner
     function showWinner() external hasBids view returns (address winner, uint256 winningBid) {
         require(auctionEnded || (block.timestamp >= auctionEndTime), "The auction is still active.");
         return (highestBidder, highestBid);
     }
     
-    // Show all bids
+    /// @notice Show all bids
     function showBids() external hasBids view returns (Bid[] memory) {
         return bids;
     }
     
-    // Refund
+    /// @notice Refund
     function refund() external hasBids {
         require(auctionEnded || block.timestamp >= auctionEndTime, "The auction is still active.");
-        uint256 depositAmount = deposits[msg.sender];
-        if (msg.sender == highestBidder) {
-            depositAmount -= highestBid;    // The winner cannot refund his last offer
+        uint256 i = 0;
+        uint256 len = bids.length;
+        for (; i < len; i++) {
+            uint256 depositAmount = deposits[bids[i].bidder];
+            if (highestBidder == bids[i].bidder) {
+                depositAmount -= highestBid;    // The winner cannot refund his last offer
+            }
+            deposits[bids[i].bidder] -= depositAmount;
+            payable(bids[i].bidder).transfer((depositAmount * 98) / 100);
         }
-        require(depositAmount > 0, "There's no refund for you.");
-        deposits[msg.sender] -= depositAmount;
-        uint256 commission = (depositAmount * 2) / 100;
-        uint256 refundAmount = depositAmount - commission;        
-        payable(owner).transfer(commission);           // Comission for the owner
-        payable(msg.sender).transfer(refundAmount);    // Refund for the bidder
     }
     
-    // End auction only for owner
+    /// @notice End auction only for owner
     function endAuction() external onlyOwner {
         require(!auctionEnded, "The auction has now ended.");
         require(block.timestamp >= auctionEndTime, "The auction is still active.");
@@ -95,7 +105,7 @@ contract Auction {
         emit EndAuction(highestBidder, highestBid);
     }
     
-    // Withdraw comissions for the owner
+    /// @notice Withdraw comissions for the owner
     function withdrawCommissions() external onlyOwner hasBids{
         require(auctionEnded || block.timestamp >= auctionEndTime, "The auction is still active.");
         uint256 balance = address(this).balance;
@@ -103,7 +113,7 @@ contract Auction {
         payable(owner).transfer(balance);
     }
     
-    // Get auction status
+    /// @notice Get auction status
     function getAuctionStatus() external view returns (
         bool isActive, uint256 timeRemaining, uint256 totalBids, uint256 contractBalance
     ) {
@@ -115,14 +125,14 @@ contract Auction {
         return (active, remaining, bids.length, address(this).balance);
     }
     
-    // Get contract info
+    /// @notice Get contract info
     function getContractInfo() external view returns (
         address contractOwner, uint256 endTime, bool ended, address currentWinner,
         uint256 currentHighestBid) {
             return (owner, auctionEndTime, auctionEnded, highestBidder, highestBid);
     }
 
-    // Partial refund
+    /// @notice Partial refund
     function partialRefund() external auctionActive hasBids {
 
         require(deposits[msg.sender] > 0, "There's no refund for you.");
@@ -135,7 +145,7 @@ contract Auction {
                 // Find how much to refund
                 uint256 lastAmount = bids[i].amount;
                 uint256 amountToReturn = deposits[msg.sender] - lastAmount;
-                require(amountToReturn > 0, "There are no funds to withdraw.");
+                require(amountToReturn > 0, "There're no funds to withdraw.");
                 deposits[bids[i].bidder] = lastAmount;
                 payable(msg.sender).transfer(amountToReturn); // Refund for the bidder
                 emit PartialWithdraw(msg.sender, amountToReturn);
@@ -145,7 +155,7 @@ contract Auction {
         }
     }
 
-    // Emergency stop
+    /// @notice Emergency stop
     function emergencyStop() external onlyOwner {
         auctionEndTime = block.timestamp;
         auctionEnded = true;
