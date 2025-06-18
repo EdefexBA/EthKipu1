@@ -75,6 +75,10 @@ partialRefund: a bidder can withdraw previous offers prior to their last offer w
 
 emergencyStop: only for the owner to use in emergencies. It stops the auction and withdraws all accumulated funds.
 
+### Contract URL:
+
+https://sepolia.etherscan.io/address/0x6193792815F15B016cc95E92a99c8eBDCBa66a9D
+
 <!---
-[Dirección del contrato en Sepolia](https://sepolia.etherscan.io/address/)
+[Dirección del contrato en Sepolia](https://sepolia.etherscan.io/address/0x6193792815F15B016cc95E92a99c8eBDCBa66a9D)
 --->
