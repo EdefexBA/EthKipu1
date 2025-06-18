@@ -1,3 +1,7 @@
+/**
+ *Submitted for verification at Etherscan.io on 2025-06-18
+*/
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -49,8 +53,8 @@ contract Auction {
     constructor() {
         owner = msg.sender;
         highestBidder = owner;
-        highestBid = 1 gwei;
-        auctionEndTime = block.timestamp + 5 days;
+        highestBid = 1 gwei;                       // Set minimum amount to start
+        auctionEndTime = block.timestamp + 5 days; // Set amount of time for auction
         auctionEnded = false;
     }
     
@@ -66,7 +70,7 @@ contract Auction {
         }));
         deposits[msg.sender] += msg.value;
         if (block.timestamp > (auctionEndTime - 10 minutes)) {
-            auctionEndTime = block.timestamp + 10 minutes;    // 10 minutes more
+            auctionEndTime = block.timestamp + 10 minutes; // Set 10 minutes more
         }
         emit NewOffer(msg.sender, msg.value);
     }
@@ -83,7 +87,7 @@ contract Auction {
     }
     
     /// @notice Refund
-    function refund() external hasBids {
+    function refund() external onlyOwner hasBids {
         require(auctionEnded || block.timestamp >= auctionEndTime, "The auction is still active.");
         uint256 i = 0;
         uint256 len = bids.length;
@@ -137,7 +141,7 @@ contract Auction {
 
         require(deposits[msg.sender] > 0, "There's no refund for you.");
         uint256 i = bids.length - 1;
-        while (i >= 0) {
+        for (; i >= 0; i--) {
 
             // Find bidder
             if (msg.sender == bids[i].bidder) {
@@ -146,12 +150,11 @@ contract Auction {
                 uint256 lastAmount = bids[i].amount;
                 uint256 amountToReturn = deposits[msg.sender] - lastAmount;
                 require(amountToReturn > 0, "There're no funds to withdraw.");
-                deposits[bids[i].bidder] = lastAmount;
+                deposits[msg.sender] = lastAmount;
                 payable(msg.sender).transfer(amountToReturn); // Refund for the bidder
                 emit PartialWithdraw(msg.sender, amountToReturn);
                 break;
             }
-            i--;
         }
     }
 
