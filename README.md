@@ -1,24 +1,24 @@
-# Trabajo Final - Módulo 2
+# Trabajo Final - ETH Kipu Módulo 2
 
-## Contrato subasta
+## Auction: smart contract
 
-### Variables del contrato:
+### Contract variables:
 
-Estructura Bid define la *oferta* (ofertante y monto ofertado).
+The Bid structure defines the *offer* (bidder and offered amount).
 
-owner es el dueño del contrato.
+owner is the owner of the contract..
 
-highestBidder es el mayor ofertante.
+highestBidder is the highest bidder.
 
-highestBid es el máximo monto ofertado.
+highestBid is the maximum amount offered.
 
-auctionEndTime es el momento en que termina la subasta.
+auctionEndTime is the moment when the auction ends.
 
-auctionEnded es el flag que indica que terminó la subasta.
+auctionEnded is the flag that indicates that the auction has ended.
 
-Bid[] es un array de la estructura de *ofertas*.
+Bid[] is an array of the *offers* structure.
 
-deposits es un mapeo de cuanto ofertó un ofertante.
+deposits is a mapping of how much a bidder has offered.
 
     // Variables and struct for bids
     struct Bid {
@@ -33,47 +33,47 @@ deposits es un mapeo de cuanto ofertó un ofertante.
     Bid[] public bids;
     mapping(address => uint256) public deposits;
 
-### Eventos:
+### Events:
 
-event NewOffer(address bidder, uint256 amount): se emite cuando hay una oferta (ofertante y monto).
+event NewOffer(address bidder, uint256 amount): it is emitted when there is an offer (bidder and amount).
 
-event EndAuction(address winner, uint256 winningBid): se emite cuando el dueño finaliza la subasta mostrando ganador y monto ofertado.
+event EndAuction(address winner, uint256 winningBid): it is emitted when the owner ends the auction, showing the winner and the offered amount.
 
-event PartialWithdraw(address bidder, uint256 amount): se emite cuando un ofertante retira parcialmente su(s) oferta(s), excepto la última, sin cobrarle comisión.
+event PartialWithdraw(address bidder, uint256 amount): it is emitted when a bidder partially withdraws their offer(s), except for the last one, without charging a fee.
 
-### Modificadores:
+### Modificators:
 
-onlyOwner: funciones aplicables solo para el dueño de la subasta.
+onlyOwner: functions applicable only to the auction owner.
 
-auctionActive: funciones aplicables solo cuando la subasta está activa.
+auctionActive: functions applicable only when the auction is active.
 
-hasBids: funciones aplicables solo cuando hay al menos una oferta en la subasta.
+hasBids: functions applicable only when there is at least one bid in the auction.
 
 ### Constructor:
 
-Al deployar el contrato se debe inicializar la oferta base en *highestBid* y tiempo de duración de la subasta en *auctionEndTime*.
+When deploying the contract, the base offer must be initialized at *highestBid* and the duration of the auction at *auctionEndTime*.
     
-### Funciones:
+### Functions:
 
-makeOffer: ejecuta la oferta si el monto ofertado supera en un 5% al anterior.
+makeOffer: executes the offer if the offered amount exceeds the previous one by 5%.
 
-showWinner: muestra el ganador y el monto máximo ofertado.
+showWinner: shows the winner and the maximum amount offered.
 
-showBids: muesta lista de ofertantes y montos ofertados.
+showBids: show a list of bidders and offered amounts.
 
-refund: devuelve a todos el dinero ofertado, menos una comisión del 2%. Al ganador se retiene la oferta ganadora.
+refund: it refunds all the offered money, minus a 2% commission. The winning bid is retained for the winner.
 
-endAuction: el dueño finaliza la subasta y emite el ganador y monto máximo ofertado.
+endAuction: the owner ends the auction and announces the winner and the maximum amount offered.
 
-withdrawCommissions: el dueño retira la comisión y la oferta ganadora.
+withdrawCommissions: the owner withdraws the commission and the winning bid.
 
-getAuctionStatus: informa estado de la subasta (si está activa, tiempo restante, total de ofertas y monto recaudado hasta ese momento).
+getAuctionStatus: it informs the status of the auction (whether it is active, remaining time, total bids, and amount raised up to that moment).
 
-getContractInfo: informa quien es el duenño, cuando termina la subasta, si terminó la subasta, mayor ofertante hasta ese momento y mayor monto ofertado.
+getContractInfo: it informs who the owner is, when the auction ends, if the auction has ended, the highest bidder up to that moment, and the highest amount offered.
 
-partialRefund: un ofertante puede retirar ofertas anteriores a su última oferta, sin aplicarle comisión.
+partialRefund: a bidder can withdraw previous offers prior to their last offer without incurring a fee.
 
-emergencyStop: solo para el dueño para usarlo en casos de emergencia. Detiene la subasta y retira todo lo acumulado.
+emergencyStop: only for the owner to use in emergencies. It stops the auction and withdraws all accumulated funds.
 
 <!---
 [Dirección del contrato en Sepolia](https://sepolia.etherscan.io/address/)
